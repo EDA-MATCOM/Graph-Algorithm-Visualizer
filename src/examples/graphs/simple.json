@@ -1,0 +1,20 @@
+{
+  "nodes": [
+    { "id": "A", "label": "A", "x": 300, "y": 100 },
+    { "id": "B", "label": "B", "x": 150, "y": 250 },
+    { "id": "C", "label": "C", "x": 450, "y": 250 },
+    { "id": "D", "label": "D", "x": 100, "y": 400 },
+    { "id": "E", "label": "E", "x": 300, "y": 400 },
+    { "id": "F", "label": "F", "x": 500, "y": 400 }
+  ],
+  "edges": [
+    { "id": "e1", "source": "A", "target": "B", "directed": false },
+    { "id": "e2", "source": "A", "target": "C", "directed": false },
+    { "id": "e3", "source": "B", "target": "D", "directed": false },
+    { "id": "e4", "source": "B", "target": "E", "directed": false },
+    { "id": "e5", "source": "C", "target": "E", "directed": false },
+    { "id": "e6", "source": "C", "target": "F", "directed": false }
+  ],
+  "directed": false,
+  "weighted": false
+}
