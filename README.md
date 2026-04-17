@@ -7,7 +7,7 @@ An interactive, browser-only SPA for visualizing classic graph algorithms step b
 ## Features
 
 - **Interactive graph editor** — add/move/delete nodes and edges with mouse clicks; toggle directed and weighted modes
-- **5 algorithms** — BFS, DFS, Dijkstra, Prim (MST), Kruskal (MST)
+- **Algorithms** — BFS, DFS, Dijkstra, Prim, Kruskal
 - **Step-by-step execution** — every meaningful decision is a separate step with a human-readable explanation
 - **Synchronized pseudocode** — the active line highlights as you navigate steps
 - **Internal state panel** — queue/stack for BFS/DFS; distance table + min-heap for Dijkstra; candidate edges for Prim; union-find components for Kruskal
