@@ -1,0 +1,43 @@
+{
+  "name": "graph-algorithm-visualizer",
+  "version": "1.0.0",
+  "description": "A teaching tool for graph algorithms",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "deploy": "npm run build && gh-pages -d dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EDA-MATCOM/Graph-Algorithm-Visualizer.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/EDA-MATCOM/Graph-Algorithm-Visualizer/issues"
+  },
+  "homepage": "https://github.com/EDA-MATCOM/Graph-Algorithm-Visualizer#readme",
+  "dependencies": {
+    "@tailwindcss/vite": "^4.2.2",
+    "@testing-library/react": "^16.3.2",
+    "@types/cytoscape": "^3.21.9",
+    "cytoscape": "^3.33.2",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "tailwindcss": "^4.2.2",
+    "vitest": "^4.1.4",
+    "zustand": "^5.0.12"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "gh-pages": "^6.3.0",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.8"
+  }
+}
