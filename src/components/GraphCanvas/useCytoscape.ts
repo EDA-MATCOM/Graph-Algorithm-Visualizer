@@ -1,9 +1,13 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import cytoscape from 'cytoscape';
 import type { Core, EventObject } from 'cytoscape';
 import { cytoscapeStylesheet } from './cytoscapeStyles';
 import { useGraphStore } from '../../store/graphStore';
 import { useExecutionStore } from '../../store/executionStore';
+
+export type WeightPrompt =
+  | { type: 'create'; source: string; target: string }
+  | { type: 'edit'; edgeId: string };
 
 export function useCytoscape(containerRef: React.RefObject<HTMLDivElement | null>) {
   const cyRef = useRef<Core | null>(null);
@@ -14,13 +18,20 @@ export function useCytoscape(containerRef: React.RefObject<HTMLDivElement | null
   const addEdge = useGraphStore(s => s.addEdge);
   const removeNode = useGraphStore(s => s.removeNode);
   const removeEdge = useGraphStore(s => s.removeEdge);
+  const updateEdgeWeight = useGraphStore(s => s.updateEdgeWeight);
   const setSelectedNodes = useGraphStore(s => s.setSelectedNodes);
   const setSelectedEdges = useGraphStore(s => s.setSelectedEdges);
   const resetExecution = useExecutionStore(s => s.resetExecution);
 
+  const isWeightedRef = useRef(graph.weighted);
+  const [weightPrompt, setWeightPrompt] = useState<WeightPrompt | null>(null);
+
   const currentStep = useExecutionStore(s => s.currentStep());
 
   const edgeSourceRef = useRef<string | null>(null);
+
+  // Keep isWeightedRef current without stale closure in event handlers
+  useEffect(() => { isWeightedRef.current = graph.weighted; }, [graph.weighted]);
 
   // Initialize Cytoscape
   useEffect(() => {
@@ -135,6 +146,11 @@ export function useCytoscape(containerRef: React.RefObject<HTMLDivElement | null
       cy.on('tap', (e: EventObject) => {
         if (e.target === cy) { setSelectedNodes([]); setSelectedEdges([]); }
       });
+      cy.on('dbltap', 'edge', (e: EventObject) => {
+        if (isWeightedRef.current) {
+          setWeightPrompt({ type: 'edit', edgeId: e.target.id() });
+        }
+      });
     }
 
     if (editMode === 'addNode') {
@@ -157,8 +173,12 @@ export function useCytoscape(containerRef: React.RefObject<HTMLDivElement | null
           edgeSourceRef.current = null;
           cy.nodes().removeClass('edge-source');
           if (src !== nodeId) {
-            addEdge(src, nodeId);
-            resetExecution();
+            if (isWeightedRef.current) {
+              setWeightPrompt({ type: 'create', source: src, target: nodeId });
+            } else {
+              addEdge(src, nodeId);
+              resetExecution();
+            }
           }
         }
       });
@@ -182,8 +202,21 @@ export function useCytoscape(containerRef: React.RefObject<HTMLDivElement | null
     }
   }, [editMode, addNode, addEdge, removeNode, removeEdge, resetExecution, setSelectedNodes, setSelectedEdges]);
 
+  const confirmWeight = useCallback((weight: number) => {
+    if (!weightPrompt) return;
+    if (weightPrompt.type === 'create') {
+      addEdge(weightPrompt.source, weightPrompt.target, weight);
+      resetExecution();
+    } else {
+      updateEdgeWeight(weightPrompt.edgeId, weight);
+    }
+    setWeightPrompt(null);
+  }, [weightPrompt, addEdge, updateEdgeWeight, resetExecution]);
+
+  const cancelWeight = useCallback(() => setWeightPrompt(null), []);
+
   const fit = useCallback(() => { cyRef.current?.fit(undefined, 40); }, []);
   const center = useCallback(() => { cyRef.current?.center(); }, []);
 
-  return { cy: cyRef, fit, center };
+  return { cy: cyRef, fit, center, weightPrompt, confirmWeight, cancelWeight };
 }

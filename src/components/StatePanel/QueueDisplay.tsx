@@ -32,6 +32,27 @@ export function QueueDisplay({ state }: Props) {
               : state.visited.map((n, i) => <Chip key={i} label={n} color="bg-slate-700 text-slate-300" />)}
           </span>
         </div>
+        {Object.keys(state.distances).length > 0 && (
+          <div>
+            <span className="text-slate-400 block mb-1">Distances from root:</span>
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="text-slate-400 border-b border-slate-700">
+                  <th className="text-left py-1 px-1.5">Node</th>
+                  <th className="text-right py-1 px-1.5">Dist</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries(state.distances).map(([node, dist]) => (
+                  <tr key={node} className="border-b border-slate-800">
+                    <td className="py-0.5 px-1.5 font-mono text-slate-200">{node}</td>
+                    <td className="py-0.5 px-1.5 text-right font-mono text-blue-300">{dist}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     );
   }
@@ -143,6 +164,62 @@ export function QueueDisplay({ state }: Props) {
         <div>
           <span className="text-slate-400 mr-1">MST edges:</span>
           <span className="text-emerald-400 font-mono">{state.mstEdges.length}</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (state.type === 'ap-bridge') {
+    const visitedNodes = Object.entries(state.disc).filter(([, d]) => d > 0);
+    return (
+      <div className="space-y-2 text-xs">
+        <div>
+          <span className="text-slate-400 mr-1">Stack:</span>
+          <span className="flex flex-wrap gap-1 inline-flex">
+            {state.stack.length === 0
+              ? <span className="text-slate-600">empty</span>
+              : [...state.stack].reverse().map((n, i) => <Chip key={i} label={n} color="bg-blue-900 text-blue-200" />)}
+          </span>
+        </div>
+        {visitedNodes.length > 0 && (
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-xs">
+              <thead>
+                <tr className="text-slate-400 border-b border-slate-700">
+                  <th className="text-left py-1 px-1.5">Node</th>
+                  <th className="text-right py-1 px-1.5">d</th>
+                  <th className="text-right py-1 px-1.5">low</th>
+                </tr>
+              </thead>
+              <tbody>
+                {visitedNodes.map(([node, disc]) => (
+                  <tr key={node} className="border-b border-slate-800">
+                    <td className="py-0.5 px-1.5 font-mono text-slate-200">{node}</td>
+                    <td className="py-0.5 px-1.5 text-right font-mono text-blue-300">{disc}</td>
+                    <td className={`py-0.5 px-1.5 text-right font-mono ${state.low[node] === disc ? 'text-amber-400 font-semibold' : 'text-emerald-400'}`}>
+                      {state.low[node]}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        <div>
+          <span className="text-slate-400 block mb-1">Articulation Points:</span>
+          <span className="flex flex-wrap gap-1">
+            {state.articulationPoints.length === 0
+              ? <span className="text-slate-600">none yet</span>
+              : state.articulationPoints.map((n, i) => <Chip key={i} label={n} color="bg-green-900 text-green-200" />)}
+          </span>
+        </div>
+        <div>
+          <span className="text-slate-400 block mb-1">Bridges:</span>
+          {state.bridges.length === 0
+            ? <span className="text-slate-600">none yet</span>
+            : state.bridges.map((b, i) => (
+                <div key={i} className="font-mono text-amber-300">⟨{b.from}, {b.to}⟩</div>
+              ))}
         </div>
       </div>
     );

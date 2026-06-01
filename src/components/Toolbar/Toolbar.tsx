@@ -42,14 +42,15 @@ export function Toolbar() {
     const algo = ALGORITHMS[selectedAlgorithm];
     if (!algo) return;
 
+    const needsStartNode = algo.requiresStartNode !== false;
     const effectiveStart = startNode ?? graph.nodes[0]?.id;
-    if (!effectiveStart) { setError('No start node'); return; }
-    if (!graph.nodes.find(n => n.id === effectiveStart)) { setError(`Node "${effectiveStart}" not found`); return; }
+    if (needsStartNode && !effectiveStart) { setError('No start node'); return; }
+    if (needsStartNode && !graph.nodes.find(n => n.id === effectiveStart)) { setError(`Node "${effectiveStart}" not found`); return; }
     if (algo.requiresWeights && !graph.weighted) { setError(`${algo.name} requires a weighted graph`); return; }
     if (algo.requiresUndirected && graph.directed) { setError(`${algo.name} requires an undirected graph`); return; }
 
     const runner = new AlgorithmRunner();
-    const execution = runner.run(algo.generator, graph, effectiveStart);
+    const execution = runner.run(algo.generator, graph, needsStartNode ? effectiveStart : undefined);
     setExecution(execution);
   };
 
@@ -123,17 +124,19 @@ export function Toolbar() {
         {/* Algorithm controls */}
         <AlgorithmSelector />
 
-        <select
-          value={startNode ?? ''}
-          onChange={e => setStartNode(e.target.value)}
-          className="bg-slate-800 text-slate-200 text-sm border border-slate-600 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          aria-label="Start node"
-        >
-          <option value="">— Start —</option>
-          {graph.nodes.map(n => (
-            <option key={n.id} value={n.id}>{n.label}</option>
-          ))}
-        </select>
+        {(!selectedAlgorithm || ALGORITHMS[selectedAlgorithm]?.requiresStartNode !== false) && (
+          <select
+            value={startNode ?? ''}
+            onChange={e => setStartNode(e.target.value)}
+            className="bg-slate-800 text-slate-200 text-sm border border-slate-600 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            aria-label="Start node"
+          >
+            <option value="">— Start —</option>
+            {graph.nodes.map(n => (
+              <option key={n.id} value={n.id}>{n.label}</option>
+            ))}
+          </select>
+        )}
 
         <button
           onClick={handleRun}

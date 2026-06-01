@@ -44,7 +44,7 @@ class UnionFind {
   }
 }
 
-export const kruskal: AlgorithmGenerator = function* (graph, startNode) {
+export const kruskal: AlgorithmGenerator = function* (graph) {
   const nodeStatuses: Record<NodeId, ElementStatus> = {};
   const edgeStatuses: Record<string, ElementStatus> = {};
 
@@ -148,6 +148,4 @@ export const kruskal: AlgorithmGenerator = function* (graph, startNode) {
     },
   };
 
-  // suppress unused warning
-  void startNode;
 };
