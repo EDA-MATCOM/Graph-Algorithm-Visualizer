@@ -12,32 +12,36 @@ export function StatePanel() {
   const pseudocode = algo?.pseudocode ?? [];
 
   return (
-    <div className="flex flex-col h-full overflow-hidden bg-slate-900 border-l border-slate-700">
+    <div className="h-full overflow-y-auto bg-slate-900 border-l border-slate-700">
       {/* Pseudocode */}
-      <div className="flex-shrink-0 border-b border-slate-700 p-3">
+      <div className="border-b border-slate-700 p-3">
         <h3 className="text-slate-400 text-xs font-semibold uppercase tracking-wide mb-2">Pseudocode</h3>
         {pseudocode.length === 0 ? (
           <div className="text-slate-600 text-xs italic">Select an algorithm</div>
         ) : (
           <div className="font-mono text-xs space-y-0.5">
-            {pseudocode.map((line, i) => (
-              <div
-                key={i}
-                className={`px-2 py-0.5 rounded transition-colors ${
-                  step && step.pseudocodeLine === i
-                    ? 'bg-amber-500/20 text-amber-300 font-semibold'
-                    : 'text-slate-400'
-                }`}
-              >
-                {line}
-              </div>
-            ))}
+            {pseudocode.map((line, i) => {
+              const indentLevel = Math.floor((line.match(/^ */)?.[0].length ?? 0) / 2);
+              return (
+                <div
+                  key={i}
+                  style={{ paddingLeft: `${0.5 + indentLevel * 1}rem` }}
+                  className={`pr-2 py-0.5 rounded transition-colors ${
+                    step && step.pseudocodeLine === i
+                      ? 'bg-amber-500/20 text-amber-300 font-semibold'
+                      : 'text-slate-400'
+                  }`}
+                >
+                  {line.trimStart()}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
 
       {/* Internal state */}
-      <div className="flex-shrink-0 border-b border-slate-700 p-3 overflow-y-auto max-h-64">
+      <div className="border-b border-slate-700 p-3">
         <h3 className="text-slate-400 text-xs font-semibold uppercase tracking-wide mb-2">Internal State</h3>
         {step ? (
           <QueueDisplay state={step.auxiliaryState} />
@@ -49,7 +53,7 @@ export function StatePanel() {
       </div>
 
       {/* Step description */}
-      <div className="flex-1 p-3 overflow-y-auto">
+      <div className="p-3">
         <h3 className="text-slate-400 text-xs font-semibold uppercase tracking-wide mb-2">Step Description</h3>
         <StepDescription />
       </div>

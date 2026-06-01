@@ -18,7 +18,7 @@ export interface AlgorithmStep {
 }
 
 export type AuxiliaryState =
-  | { type: 'bfs'; queue: NodeId[]; visited: NodeId[] }
+  | { type: 'bfs'; queue: NodeId[]; visited: NodeId[]; distances: Record<NodeId, number> }
   | { type: 'dfs'; stack: NodeId[]; visited: NodeId[] }
   | {
       type: 'dijkstra';
@@ -37,17 +37,25 @@ export type AuxiliaryState =
       sortedEdges: string[];
       mstEdges: string[];
     }
+  | {
+      type: 'ap-bridge';
+      stack: NodeId[];
+      disc: Record<NodeId, number>;
+      low: Record<NodeId, number>;
+      articulationPoints: NodeId[];
+      bridges: Array<{ from: NodeId; to: NodeId }>;
+    }
   | { type: 'generic'; data: Record<string, unknown> };
 
 export interface AlgorithmExecution {
   algorithmId: string;
   graphSnapshot: GraphModel;
-  startNode: NodeId;
+  startNode: NodeId | undefined;
   steps: AlgorithmStep[];
 }
 
 export type AlgorithmGenerator = (
   graph: GraphModel,
-  startNode: NodeId,
+  startNode?: NodeId,
   options?: Record<string, unknown>
 ) => Generator<AlgorithmStep>;

@@ -3,6 +3,7 @@ import { dfs, dfsPseudocode } from './dfs';
 import { dijkstra, dijkstraPseudocode } from './dijkstra';
 import { prim, primPseudocode } from './prim';
 import { kruskal, kruskalPseudocode } from './kruskal';
+import { articulationPoints, articulationPointsPseudocode } from './articulationPoints';
 import type { AlgorithmGenerator } from './types';
 
 export interface AlgorithmDefinition {
@@ -10,6 +11,7 @@ export interface AlgorithmDefinition {
   description: string;
   requiresWeights: boolean;
   requiresUndirected?: boolean;
+  requiresStartNode?: boolean;
   generator: AlgorithmGenerator;
   pseudocode: string[];
   auxiliaryStateType: string;
@@ -28,6 +30,7 @@ export const ALGORITHMS: Record<string, AlgorithmDefinition> = {
     name: 'DFS',
     description: 'Depth-First Search',
     requiresWeights: false,
+    requiresStartNode: false,
     generator: dfs,
     pseudocode: dfsPseudocode,
     auxiliaryStateType: 'dfs',
@@ -54,8 +57,19 @@ export const ALGORITHMS: Record<string, AlgorithmDefinition> = {
     description: "Kruskal's MST",
     requiresWeights: true,
     requiresUndirected: true,
+    requiresStartNode: false,
     generator: kruskal,
     pseudocode: kruskalPseudocode,
     auxiliaryStateType: 'kruskal',
+  },
+  'ap-bridge': {
+    name: 'AP & Bridges',
+    description: 'Articulation Points & Bridge Edges',
+    requiresWeights: false,
+    requiresUndirected: true,
+    requiresStartNode: false,
+    generator: articulationPoints,
+    pseudocode: articulationPointsPseudocode,
+    auxiliaryStateType: 'ap-bridge',
   },
 };
