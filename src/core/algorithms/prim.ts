@@ -15,6 +15,7 @@ export const primPseudocode = [
 ];
 
 export const prim: AlgorithmGenerator = function* (graph, startNode) {
+  if (!startNode) throw new Error('Prim requires a start node');
   const inMST = new Set<NodeId>([startNode]);
   const mstEdges = new Set<string>();
   const nodeStatuses: Record<NodeId, ElementStatus> = {};

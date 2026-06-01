@@ -23,6 +23,7 @@ export const bfsPseudocode = [
 ];
 
 export const bfs: AlgorithmGenerator = function* (graph, startNode) {
+  if (!startNode) throw new Error('BFS requires a start node');
   const visited = new Set<NodeId>();
   const queue: NodeId[] = [startNode];
   const nodeStatuses: Record<NodeId, ElementStatus> = {};

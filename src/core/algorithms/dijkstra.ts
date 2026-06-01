@@ -65,6 +65,7 @@ class MinHeap {
 }
 
 export const dijkstra: AlgorithmGenerator = function* (graph, startNode) {
+  if (!startNode) throw new Error('Dijkstra requires a start node');
   const INF = Infinity;
   const distances: Record<NodeId, number> = {};
   const previous: Record<NodeId, NodeId | null> = {};
