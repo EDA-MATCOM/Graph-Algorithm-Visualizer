@@ -11,104 +11,140 @@ function getNeighbors(graph: GraphModel, nodeId: NodeId) {
 }
 
 export const dfsPseudocode = [
-  'DFS(G, s):',
-  '  S ← empty stack',
-  '  push(S, s)',
-  '  while S not empty:',
-  '    u ← pop(S)',
+  'DFS(G):',
+  '  visited ← {}',
+  '  for each node u in G:',
   '    if u not visited:',
-  '      mark u visited',
-  '      for each neighbor v of u:',
-  '        if v not visited:',
-  '          push(S, v)',
+  '      DFS-Visit(G, u, visited)',
+  '',
+  'DFS-Visit(G, u, visited):',
+  '  mark u as visited',
+  '  for each neighbor v of u:',
+  '    if v not visited:',
+  '      DFS-Visit(G, v, visited)',
   '  return',
 ];
 
+// visitBase = index of 'DFS-Visit(G, u, visited):' line in the relevant pseudocode array
+// Offsets from visitBase:  +1 mark, +2 for-loop, +3 if-check, +4 recurse-call, +5 return
+// entryEdgeId = edge used to reach this node from its parent (undefined for component roots)
+function* dfsVisit(
+  graph: GraphModel,
+  node: NodeId,
+  visited: Set<NodeId>,
+  callStack: NodeId[],
+  nodeStatuses: Record<NodeId, ElementStatus>,
+  edgeStatuses: Record<string, ElementStatus>,
+  stepCounter: { value: number },
+  visitBase: number,
+  entryEdgeId?: string,
+): Generator<AlgorithmStep> {
+  visited.add(node);
+  callStack.push(node);
+  nodeStatuses[node] = 'considering';
+
+  yield {
+    stepIndex: stepCounter.value++,
+    description: `Visit "${node}" — mark visited. Call stack: [${callStack.join(' → ')}]`,
+    pseudocodeLine: visitBase + 1,
+    nodeStatuses: { ...nodeStatuses },
+    edgeStatuses: { ...edgeStatuses },
+    auxiliaryState: { type: 'dfs', stack: [...callStack], visited: [...visited] },
+  } satisfies AlgorithmStep;
+
+  for (const { neighbor, edgeId } of getNeighbors(graph, node)) {
+    if (!visited.has(neighbor)) {
+      edgeStatuses[edgeId] = 'considering';  // amber: edge currently being traversed
+      nodeStatuses[neighbor] = 'active';
+
+      yield {
+        stepIndex: stepCounter.value++,
+        description: `"${neighbor}" not visited → recurse into it.`,
+        pseudocodeLine: visitBase + 4,
+        nodeStatuses: { ...nodeStatuses },
+        edgeStatuses: { ...edgeStatuses },
+        auxiliaryState: { type: 'dfs', stack: [...callStack], visited: [...visited] },
+      };
+
+      yield* dfsVisit(graph, neighbor, visited, callStack, nodeStatuses, edgeStatuses, stepCounter, visitBase, edgeId);
+    } else if (edgeId !== entryEdgeId) {
+      // Skip the edge we came in through — it's a tree edge, not a back edge
+      edgeStatuses[edgeId] = 'rejected';
+
+      yield {
+        stepIndex: stepCounter.value++,
+        description: `"${neighbor}" already visited → skip.`,
+        pseudocodeLine: visitBase + 3,
+        nodeStatuses: { ...nodeStatuses },
+        edgeStatuses: { ...edgeStatuses },
+        auxiliaryState: { type: 'dfs', stack: [...callStack], visited: [...visited] },
+      };
+    }
+  }
+
+  nodeStatuses[node] = 'visited';
+  callStack.pop();
+
+  // Confirm the tree edge as path before yielding return, so it shows green in this step
+  if (entryEdgeId !== undefined) {
+    edgeStatuses[entryEdgeId] = 'path';
+  }
+
+  yield {
+    stepIndex: stepCounter.value++,
+    description: `Return from "${node}". Call stack: [${callStack.length ? callStack.join(' → ') : 'empty'}]`,
+    pseudocodeLine: visitBase + 5,
+    nodeStatuses: { ...nodeStatuses },
+    edgeStatuses: { ...edgeStatuses },
+    auxiliaryState: { type: 'dfs', stack: [...callStack], visited: [...visited] },
+  };
+}
+
+// DFS covering all connected components; startNode only sets the first node visited
 export const dfs: AlgorithmGenerator = function* (graph, startNode) {
   const visited = new Set<NodeId>();
-  const stack: NodeId[] = [startNode];
+  const callStack: NodeId[] = [];
   const nodeStatuses: Record<NodeId, ElementStatus> = {};
   const edgeStatuses: Record<string, ElementStatus> = {};
+  const stepCounter = { value: 0 };
 
   graph.nodes.forEach(n => { nodeStatuses[n.id] = 'default'; });
   graph.edges.forEach(e => { edgeStatuses[e.id] = 'default'; });
 
-  nodeStatuses[startNode] = 'active';
+  const first = startNode ?? graph.nodes[0]?.id;
+  if (!first) return;
 
   yield {
-    stepIndex: 0,
-    description: `Start: push node "${startNode}". Stack: [${startNode}]`,
-    pseudocodeLine: 2,
+    stepIndex: stepCounter.value++,
+    description: `DFS: initialize visited set. Will cover all ${graph.nodes.length} nodes.`,
+    pseudocodeLine: 1,
     nodeStatuses: { ...nodeStatuses },
     edgeStatuses: { ...edgeStatuses },
-    auxiliaryState: { type: 'dfs', stack: [...stack], visited: [] },
+    auxiliaryState: { type: 'dfs', stack: [], visited: [] },
   } satisfies AlgorithmStep;
 
-  let stepIndex = 1;
+  // 'DFS-Visit(G, u, visited):' is at index 6 in dfsPseudocode
+  const nodeOrder = [first, ...graph.nodes.map(n => n.id).filter(id => id !== first)];
 
-  while (stack.length > 0) {
-    const current = stack.pop()!;
-
-    if (visited.has(current)) {
-      yield {
-        stepIndex: stepIndex++,
-        description: `Pop "${current}" — already visited, skip.`,
-        pseudocodeLine: 5,
-        nodeStatuses: { ...nodeStatuses },
-        edgeStatuses: { ...edgeStatuses },
-        auxiliaryState: { type: 'dfs', stack: [...stack], visited: [...visited] },
-      };
-      continue;
-    }
-
-    visited.add(current);
-    nodeStatuses[current] = 'considering';
+  for (const nodeId of nodeOrder) {
+    if (visited.has(nodeId)) continue;
 
     yield {
-      stepIndex: stepIndex++,
-      description: `Pop and visit "${current}".`,
-      pseudocodeLine: 6,
+      stepIndex: stepCounter.value++,
+      description: `"${nodeId}" unvisited — starting new component from it.`,
+      pseudocodeLine: 3,
       nodeStatuses: { ...nodeStatuses },
       edgeStatuses: { ...edgeStatuses },
-      auxiliaryState: { type: 'dfs', stack: [...stack], visited: [...visited] },
+      auxiliaryState: { type: 'dfs', stack: [], visited: [...visited] },
     };
 
-    const neighbors = getNeighbors(graph, current);
-
-    for (const { neighbor, edgeId } of neighbors) {
-      if (!visited.has(neighbor)) {
-        stack.push(neighbor);
-        nodeStatuses[neighbor] = 'active';
-        edgeStatuses[edgeId] = 'path';
-
-        yield {
-          stepIndex: stepIndex++,
-          description: `Push neighbor "${neighbor}". Stack: [${stack.join(', ')}]`,
-          pseudocodeLine: 8,
-          nodeStatuses: { ...nodeStatuses },
-          edgeStatuses: { ...edgeStatuses },
-          auxiliaryState: { type: 'dfs', stack: [...stack], visited: [...visited] },
-        };
-      } else {
-        edgeStatuses[edgeId] = 'rejected';
-        yield {
-          stepIndex: stepIndex++,
-          description: `Neighbor "${neighbor}" already visited → skip.`,
-          pseudocodeLine: 9,
-          nodeStatuses: { ...nodeStatuses },
-          edgeStatuses: { ...edgeStatuses },
-          auxiliaryState: { type: 'dfs', stack: [...stack], visited: [...visited] },
-        };
-      }
-    }
-
-    nodeStatuses[current] = 'visited';
+    yield* dfsVisit(graph, nodeId, visited, callStack, nodeStatuses, edgeStatuses, stepCounter, 6);
   }
 
   yield {
-    stepIndex: stepIndex,
-    description: `DFS complete. Visited: [${[...visited].join(', ')}]`,
-    pseudocodeLine: 10,
+    stepIndex: stepCounter.value,
+    description: `DFS complete. All ${visited.size} nodes visited.`,
+    pseudocodeLine: 4,
     nodeStatuses: { ...nodeStatuses },
     edgeStatuses: { ...edgeStatuses },
     auxiliaryState: { type: 'dfs', stack: [], visited: [...visited] },
