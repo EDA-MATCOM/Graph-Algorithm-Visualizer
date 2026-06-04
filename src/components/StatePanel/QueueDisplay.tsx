@@ -169,6 +169,59 @@ export function QueueDisplay({ state }: Props) {
     );
   }
 
+  if (state.type === 'topological-sort') {
+    const topologicalOrder = [...state.outputStack].reverse();
+    const visitedNodes = Object.entries(state.d).filter(([, v]) => v > 0);
+    return (
+      <div className="space-y-2 text-xs">
+        <div>
+          <span className="text-slate-400 mr-1">DFS Stack:</span>
+          <span className="flex flex-wrap gap-1 inline-flex">
+            {state.callStack.length === 0
+              ? <span className="text-slate-600">empty</span>
+              : [...state.callStack].reverse().map((n, i) => (
+                  <Chip key={i} label={n} color="bg-blue-900 text-blue-200" />
+                ))}
+          </span>
+        </div>
+        <div>
+          <span className="text-slate-400 block mb-1">Topological order (so far):</span>
+          <span className="flex flex-wrap gap-1">
+            {topologicalOrder.length === 0
+              ? <span className="text-slate-600">none yet</span>
+              : topologicalOrder.map((n, i) => (
+                  <Chip key={i} label={`${i + 1}.${n}`} color="bg-emerald-900 text-emerald-200" />
+                ))}
+          </span>
+        </div>
+        {visitedNodes.length > 0 && (
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-xs">
+              <thead>
+                <tr className="text-slate-400 border-b border-slate-700">
+                  <th className="text-left py-1 px-1.5">Node</th>
+                  <th className="text-right py-1 px-1.5">d</th>
+                  <th className="text-right py-1 px-1.5">f</th>
+                </tr>
+              </thead>
+              <tbody>
+                {visitedNodes.map(([node, disc]) => (
+                  <tr key={node} className="border-b border-slate-800">
+                    <td className="py-0.5 px-1.5 font-mono text-slate-200">{node}</td>
+                    <td className="py-0.5 px-1.5 text-right font-mono text-blue-300">{disc}</td>
+                    <td className="py-0.5 px-1.5 text-right font-mono text-emerald-400">
+                      {state.f[node] ?? '—'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   if (state.type === 'ap-bridge') {
     const visitedNodes = Object.entries(state.disc).filter(([, d]) => d > 0);
     return (
