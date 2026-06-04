@@ -82,3 +82,14 @@ export function generateNodeId(): string { return nextNodeId(); }
 export function generateEdgeId(): string { return nextEdgeId(); }
 
 export function resetCounters() { nodeCounter = 0; edgeCounter = 0; }
+
+export function syncCountersWithGraph(graph: GraphModel): void {
+  for (const node of graph.nodes) {
+    const match = node.id.match(/^n(\d+)$/);
+    if (match) nodeCounter = Math.max(nodeCounter, parseInt(match[1], 10));
+  }
+  for (const edge of graph.edges) {
+    const match = edge.id.match(/^e(\d+)$/);
+    if (match) edgeCounter = Math.max(edgeCounter, parseInt(match[1], 10));
+  }
+}

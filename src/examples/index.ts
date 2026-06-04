@@ -3,6 +3,7 @@ import simpleGraph from './graphs/simple.json';
 import weightedGraph from './graphs/weighted.json';
 import mstGraph from './graphs/mst.json';
 import disconnectedGraph from './graphs/disconnected.json';
+import dagGraph from './graphs/dag.json';
 
 export interface ExampleGraph {
   id: string;
@@ -35,5 +36,11 @@ export const EXAMPLE_GRAPHS: ExampleGraph[] = [
     name: 'Disconnected graph',
     description: 'Shows behavior with separate components',
     graph: disconnectedGraph as GraphModel,
+  },
+  {
+    id: 'dag',
+    name: 'DAG (7 nodes)',
+    description: 'Directed acyclic graph — ideal for Topological Sort',
+    graph: dagGraph as GraphModel,
   },
 ];

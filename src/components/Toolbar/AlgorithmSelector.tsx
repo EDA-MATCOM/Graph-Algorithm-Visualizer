@@ -18,7 +18,8 @@ export function AlgorithmSelector() {
       {Object.entries(ALGORITHMS).map(([id, algo]) => {
         const disabled =
           (algo.requiresWeights && !graph.weighted) ||
-          (algo.requiresUndirected && graph.directed);
+          (algo.requiresUndirected && graph.directed) ||
+          (algo.requiresDirected && !graph.directed);
         return (
           <option key={id} value={id} disabled={disabled}>
             {algo.name}{disabled ? ' (incompatible)' : ''}
