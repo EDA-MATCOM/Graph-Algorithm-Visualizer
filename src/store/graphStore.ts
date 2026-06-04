@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { GraphModel, GraphNode, GraphEdge, NodeId } from '../core/graph/types';
-import { createEmptyGraph, generateNodeId, generateEdgeId } from '../core/graph/GraphSerializer';
+import { createEmptyGraph, generateNodeId, generateEdgeId, syncCountersWithGraph } from '../core/graph/GraphSerializer';
 
 type EditMode = 'select' | 'addNode' | 'addEdge' | 'delete';
 
@@ -31,7 +31,7 @@ export const useGraphStore = create<GraphStore>((set, get) => ({
   selectedEdges: [],
   editMode: 'select',
 
-  setGraph: (g) => set({ graph: g }),
+  setGraph: (g) => { syncCountersWithGraph(g); set({ graph: g }); },
 
   addNode: (x, y, label?) => {
     const id = generateNodeId();
