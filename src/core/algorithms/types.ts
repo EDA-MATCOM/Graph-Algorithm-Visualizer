@@ -45,6 +45,15 @@ export type AuxiliaryState =
       articulationPoints: NodeId[];
       bridges: Array<{ from: NodeId; to: NodeId }>;
     }
+  | {
+      type: 'topological-sort';
+      callStack: NodeId[];
+      outputStack: NodeId[];
+      visited: NodeId[];
+      d: Record<NodeId, number>;
+      f: Record<NodeId, number>;
+      time: number;
+    }
   | { type: 'generic'; data: Record<string, unknown> };
 
 export interface AlgorithmExecution {

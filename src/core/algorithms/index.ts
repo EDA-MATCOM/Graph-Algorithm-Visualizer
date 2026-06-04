@@ -4,6 +4,7 @@ import { dijkstra, dijkstraPseudocode } from './dijkstra';
 import { prim, primPseudocode } from './prim';
 import { kruskal, kruskalPseudocode } from './kruskal';
 import { articulationPoints, articulationPointsPseudocode } from './articulationPoints';
+import { topologicalSort, topologicalSortPseudocode } from './topologicalSort';
 import type { AlgorithmGenerator } from './types';
 
 export interface AlgorithmDefinition {
@@ -11,6 +12,7 @@ export interface AlgorithmDefinition {
   description: string;
   requiresWeights: boolean;
   requiresUndirected?: boolean;
+  requiresDirected?: boolean;
   requiresStartNode?: boolean;
   generator: AlgorithmGenerator;
   pseudocode: string[];
@@ -71,5 +73,15 @@ export const ALGORITHMS: Record<string, AlgorithmDefinition> = {
     generator: articulationPoints,
     pseudocode: articulationPointsPseudocode,
     auxiliaryStateType: 'ap-bridge',
+  },
+  'topological-sort': {
+    name: 'Topological Sort',
+    description: 'Topological ordering of a DAG (DFS-based)',
+    requiresWeights: false,
+    requiresDirected: true,
+    requiresStartNode: false,
+    generator: topologicalSort,
+    pseudocode: topologicalSortPseudocode,
+    auxiliaryStateType: 'topological-sort',
   },
 };
