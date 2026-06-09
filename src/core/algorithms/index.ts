@@ -5,6 +5,7 @@ import { prim, primPseudocode } from './prim';
 import { kruskal, kruskalPseudocode } from './kruskal';
 import { articulationPoints, articulationPointsPseudocode } from './articulationPoints';
 import { topologicalSort, topologicalSortPseudocode } from './topologicalSort';
+import { kosaraju, kosarajuPseudocode } from './kosaraju';
 import type { AlgorithmGenerator } from './types';
 
 export interface AlgorithmDefinition {
@@ -83,5 +84,15 @@ export const ALGORITHMS: Record<string, AlgorithmDefinition> = {
     generator: topologicalSort,
     pseudocode: topologicalSortPseudocode,
     auxiliaryStateType: 'topological-sort',
+  },
+  kosaraju: {
+    name: 'Kosaraju SCC',
+    description: "Kosaraju's Strongly Connected Components",
+    requiresWeights: false,
+    requiresDirected: true,
+    requiresStartNode: false,
+    generator: kosaraju,
+    pseudocode: kosarajuPseudocode,
+    auxiliaryStateType: 'kosaraju',
   },
 };
