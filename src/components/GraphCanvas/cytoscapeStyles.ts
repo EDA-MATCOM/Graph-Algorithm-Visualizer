@@ -38,6 +38,12 @@ export const cytoscapeStylesheet: StylesheetStyle[] = [
     selector: 'node[status="rejected"]',
     style: { 'background-color': '#7f1d1d', 'border-color': '#ef4444' },
   },
+  { selector: 'node[status="scc-0"]', style: { 'background-color': '#7c3aed', 'border-color': '#a78bfa', 'border-width': 4 } },
+  { selector: 'node[status="scc-1"]', style: { 'background-color': '#be185d', 'border-color': '#fb7185', 'border-width': 4 } },
+  { selector: 'node[status="scc-2"]', style: { 'background-color': '#0e7490', 'border-color': '#22d3ee', 'border-width': 4 } },
+  { selector: 'node[status="scc-3"]', style: { 'background-color': '#b45309', 'border-color': '#fbbf24', 'border-width': 4 } },
+  { selector: 'node[status="scc-4"]', style: { 'background-color': '#3f6212', 'border-color': '#a3e635', 'border-width': 4 } },
+  { selector: 'node[status="scc-5"]', style: { 'background-color': '#86198f', 'border-color': '#e879f9', 'border-width': 4 } },
   {
     selector: 'node:selected',
     style: { 'border-color': '#a78bfa', 'border-width': 4 },
