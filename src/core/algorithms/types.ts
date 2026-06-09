@@ -6,7 +6,13 @@ export type ElementStatus =
   | 'active'
   | 'visited'
   | 'path'
-  | 'rejected';
+  | 'rejected'
+  | 'scc-0'
+  | 'scc-1'
+  | 'scc-2'
+  | 'scc-3'
+  | 'scc-4'
+  | 'scc-5';
 
 export interface AlgorithmStep {
   stepIndex: number;
@@ -50,6 +56,17 @@ export type AuxiliaryState =
       callStack: NodeId[];
       outputStack: NodeId[];
       visited: NodeId[];
+      d: Record<NodeId, number>;
+      f: Record<NodeId, number>;
+      time: number;
+    }
+  | {
+      type: 'kosaraju';
+      phase: 1 | 2;
+      finishStack: NodeId[];
+      callStack: NodeId[];
+      currentSCC: NodeId[];
+      sccs: NodeId[][];
       d: Record<NodeId, number>;
       f: Record<NodeId, number>;
       time: number;

@@ -4,6 +4,7 @@ import weightedGraph from './graphs/weighted.json';
 import mstGraph from './graphs/mst.json';
 import disconnectedGraph from './graphs/disconnected.json';
 import dagGraph from './graphs/dag.json';
+import sccGraph from './graphs/scc.json';
 
 export interface ExampleGraph {
   id: string;
@@ -42,5 +43,11 @@ export const EXAMPLE_GRAPHS: ExampleGraph[] = [
     name: 'DAG (7 nodes)',
     description: 'Directed acyclic graph — ideal for Topological Sort',
     graph: dagGraph as GraphModel,
+  },
+  {
+    id: 'scc',
+    name: 'SCC example (8 nodes)',
+    description: 'Directed graph with 4 clearly visible SCCs — ideal for Kosaraju',
+    graph: sccGraph as GraphModel,
   },
 ];
